@@ -31,7 +31,14 @@ export default class App {
   }
 
   setState(nextState) {
-    const { documents, selectedDocument, error, deletedDocument } = nextState
+    if (this.state === nextState) {
+      return
+    }
+    this.state = nextState
+    this.update()
+  }
+  update() {
+    const { documents, selectedDocument, error, deletedDocument } = this.state
     this.sidebar.setState({ documents, selectedDocument })
     this.content.setState({
       documents,
@@ -40,7 +47,6 @@ export default class App {
       error
     })
   }
-
   init() {
     document.body.classList.add(checkUserColorMode())
   }
