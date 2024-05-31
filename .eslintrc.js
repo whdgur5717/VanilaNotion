@@ -4,11 +4,10 @@ module.exports = {
     es2021: true,
     node: true
   },
-  extends: ["airbnb-base", "prettier"],
+  extends: ["prettier"],
   rules: {
     "import/prefer-default-export": "off",
     "import/extensions": ["off"],
-    "class-methods-use-this": "warn",
     "no-param-reassign": ["error", { props: false }],
     "no-underscore-dangle": "allow"
   },
@@ -17,7 +16,7 @@ module.exports = {
       env: {
         node: true
       },
-      files: [".eslintrc.{js,cjs}"],
+      files: [".eslintrc.{js,cjs,}"],
       parserOptions: {
         sourceType: "script"
       }
