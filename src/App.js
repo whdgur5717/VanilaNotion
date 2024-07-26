@@ -1,54 +1,79 @@
-import Sidebar from "./components/Sidebar/Sidebar.js"
-import Content from "./components/Content/Content.js"
-import Route from "./route/Route.js"
-import { checkUserColorMode } from "./utils/checkUserColorMode.js"
-import { documentStore } from "./store/documentStore.js"
-export default class App {
-  constructor({ $target }) {
-    this.$target = $target
-    this.sidebar = new Sidebar({
-      $target,
-      props: {
-        documents: [],
-        selectedDocument: null
-      }
-    })
-    this.content = new Content({
-      $target,
-      props: {
-        documents: [],
-        selectedDocument: null
-      }
-    })
-    this.route = new Route()
-    this.store()
-    this.init()
-  }
-  store() {
-    documentStore.subscribe(() => {
-      this.setState(documentStore.getState())
-    })
-  }
+import { LitElement, css, html } from "lit"
+import { fetchAllDocuments } from "./apis/documents.js"
+import { Task } from "@lit/task"
 
-  setState(nextState) {
-    if (this.state === nextState) {
-      return
+export default class App extends LitElement {
+  static properties = {
+    documents: { state: true }
+  }
+  _task = new Task(this, {
+    task: async () => {
+      const data = await fetchAllDocuments()
+      this.documents = data
+      return data
+    },
+    args: () => []
+  })
+  static styles = css`
+    p {
+      color: red;
     }
-    this.state = nextState
-    this.update()
+  `
+  constructor() {
+    super()
+    this.documents = []
   }
-  update() {
-    const { documents, selectedDocument, error, deletedDocument } = this.state
-    this.sidebar.setState({ documents, selectedDocument })
-    this.content.setState({
-      documents,
-      selectedDocument,
-      deletedDocument,
-      error
-    })
-  }
-  init() {
-    document.body.classList.add(checkUserColorMode())
+  render() {
+    return html`<div>
+      <side-bar .documents=${this.documents}></side-bar>
+    </div> `
   }
 }
-//상위 컴포넌트인 App에서 DocumentStore 구독 -> 변경 시  Sidebar , Content 컴포넌트 재렌더링
+customElements.define("root-element", App)
+
+class Sidebar extends LitElement {
+  static properties = {
+    documents: {}
+  }
+  static styles = css`
+    #sidebar {
+      width: 100px;
+      height: 100vh;
+      border: 1px solid black;
+    }
+  `
+  constructor() {
+    super()
+  }
+  render() {
+    return html`<div id="sidebar">
+      ${this.documents.map(
+        document => html`<side-bar_item .document=${document}></side-bar_item>`
+      )}
+    </div>`
+  }
+}
+customElements.define("side-bar", Sidebar)
+
+class SidebarItem extends LitElement {
+  static styles = css`
+    div {
+      margin-left: 20px;
+    }
+  `
+  constructor() {
+    super()
+  }
+  render() {
+    return this.renderItem(this.document)
+  }
+  renderItem(document) {
+    const { title, documents } = document
+    return html`<div>
+      <h2 class="item">${title}</h2>
+      ${documents.map(document => this.renderItem(document))}
+    </div>`
+  }
+}
+
+customElements.define("side-bar_item", SidebarItem)

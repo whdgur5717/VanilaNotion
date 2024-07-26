@@ -1,22 +1,47 @@
+import path from "path"
+import { fileURLToPath } from "url"
 import HtmlWebpackPlugin from "html-webpack-plugin"
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
 const config = {
-  entry: "./src/main.js",
+  devServer: {
+    historyApiFallback: true
+  },
+  mode: "development",
+  entry: "./src/App.js",
   output: {
-    clean: true
+    filename: "main.js",
+    path: path.resolve(__dirname, "dist")
   },
   module: {
-    rules: [{ test: /\.css$/, use: ["style-loader", "css-loader"] }] //스타일 로더는 link태그로 삽입해주는거
+    rules: [
+      { test: /\.css$/, use: ["style-loader", "css-loader"] },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            plugins: [
+              [
+                "@babel/plugin-proposal-decorators",
+                { decoratorsBeforeExport: true }
+              ],
+              ["@babel/plugin-proposal-class-properties", { loose: true }]
+            ]
+          }
+        }
+      }
+    ]
   },
-  plugins: [new HtmlWebpackPlugin({ template: "./index.html" })],
-  devServer: {
-    historyApiFallback: true,
-    hot: true
-  },
-  resolve: {
-    fullySpecified: false,
-    extensions: [".js"]
-  }
+  plugins: [
+    new HtmlWebpackPlugin({
+      chunksSortMode: "none",
+      template: "index.html"
+    })
+  ]
 }
 
 export default config
