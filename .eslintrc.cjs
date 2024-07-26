@@ -4,12 +4,12 @@ module.exports = {
     es2021: true,
     node: true
   },
-  extends: ["prettier"],
+  extends: ["prettier", "eslint:recommended"],
   rules: {
     "import/prefer-default-export": "off",
     "import/extensions": ["off"],
     "no-param-reassign": ["error", { props: false }],
-    "no-underscore-dangle": "allow"
+    "no-unused-vars": ["error"]
   },
   overrides: [
     {
